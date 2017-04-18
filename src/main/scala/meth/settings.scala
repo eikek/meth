@@ -1,6 +1,6 @@
 package meth
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.time.Duration
 import javax.xml.stream._
 import java.io.StringReader
@@ -11,6 +11,13 @@ import scalaj.http._
 import pureconfig._, pureconfig.error._
 
 object settings {
+  private def setConfigFile(): Unit = {
+    val f = Paths.get(System.getProperty("user.home"), ".config", "meth", "meth.conf")
+    if (Files.exists(f) && System.getProperty("config.file") == null) {
+      System.setProperty("config.file", f.toString)
+    }
+  }
+  setConfigFile()
 
   lazy val main: Settings = load[Settings]("meth")
 

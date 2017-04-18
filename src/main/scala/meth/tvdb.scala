@@ -52,7 +52,6 @@ object tvdb {
     val json = params.foldLeft(req)({ case (r, (k, v)) => r.param(k, v) })
       .asString
       .body
-    println(json)
     read.parseResult(json)
   }
 
