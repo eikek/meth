@@ -5,6 +5,7 @@ import java.time.Duration
 import javax.xml.stream._
 import java.io.StringReader
 import com.typesafe.config.ConfigValue
+import scala.util.Try
 
 import fs2.Task
 import scalaj.http._
@@ -30,7 +31,7 @@ object settings {
     }
 
 
-  private implicit def hint[T] = ProductHint[T](ConfigFieldMapping(CamelCase, KebabCase))
+  implicit def hint[T] = ProductHint[T](ConfigFieldMapping(CamelCase, KebabCase))
 
   implicit def durationConvert: ConfigConvert[Duration] = {
     val dc = implicitly[ConfigConvert[scala.concurrent.duration.Duration]]
@@ -76,7 +77,7 @@ object settings {
 
       (stack.map((0, _)) ++ result).
         map(_._2).
-        find(url => Http(url).method("HEAD").asString.isSuccess).
+        find(url => Try(Http(url).method("HEAD").asString.isSuccess).toOption.getOrElse(false)).
         getOrElse(fallbackListUrl)
     }
   }

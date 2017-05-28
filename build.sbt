@@ -17,6 +17,7 @@ scalacOptions ++= Seq(
   "-Ywarn-numeric-widen",
   "-Ywarn-unused-import"
 )
+scalacOptions in (Compile, console) ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains))
 
 libraryDependencies ++= Seq(
   `scalaj-http`, xz, `fs2-core`, `scalaj-http`, scopt, pureconfig,

@@ -4,15 +4,15 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.12.1"
+  val `scala-version` = "2.12.2"
 
   // https://github.com/lihaoyi/fastparse
   // MIT
-  val fastparse = "com.lihaoyi" %% "fastparse" % "0.4.2"
+  val fastparse = "com.lihaoyi" %% "fastparse" % "0.4.3"
 
   // https://github.com/FasterXML/jackson-core
   // ASL 2.0
-  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.7"
+  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8"
 
   // http://tukaani.org/xz/java.html
   // Public Domain
@@ -20,7 +20,7 @@ object libs {
 
   // https://github.com/pureconfig/pureconfig
   // MPL 2.0
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.7.0"
+  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.7.1"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -28,12 +28,12 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.9.5"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.9.5"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.9.6"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.9.6"
 
   // https://github.com/scalatest/scalatest
   // ASL 2.0
-  val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.3"
 
   // https://github.com/lihaoyi/Ammonite
   // MIT

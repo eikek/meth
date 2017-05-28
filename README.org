@@ -2,7 +2,7 @@
 
 * COMMENT setup
 
-#+begin_src emacs-lisp :exports none
+#+begin_src emacs-lisp :exports none :results silent
   (defvar-local this-buffer-name (buffer-file-name))
   (add-hook
    'after-save-hook
@@ -11,8 +11,6 @@
        (shell-command "pandoc --from org --to markdown -o README.md README.org"))))
 #+end_src
 
-#+RESULTS:
-| (lambda nil (when (string-equal this-buffer-name (buffer-file-name)) (shell-command pandoc --from org --to markdown -o README.md README.org))) | helm-swoop--clear-cache | sml/generate-buffer-identification |
 
 * meth
 
