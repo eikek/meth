@@ -1,23 +1,31 @@
 package meth
 
 import java.nio.file.{Files, Path}
+import java.nio.file.StandardOpenOption.{APPEND, CREATE}
+import java.nio.charset.StandardCharsets
 import java.io.File
 import scala.sys.process._
 import fs2.{concurrent, Sink, Stream, Strategy, Task}
 import scopt.OptionParser
+import pureconfig._
+import pureconfig.generic.auto._
 
 import meth.data._
 import meth.filter._
 import meth.format.{Context, Format}
 import meth.format.syntax._
 import meth.string.syntax._
+import meth.settings._
 import meth.main.Cmd
 
 object download {
 
-  case class Config(program: String, options: Seq[String], defaultTarget: Path, parallel: Int)
+  implicit def readPath: scopt.Read[Path] =
+    scopt.Read.reads(s => java.nio.file.Paths.get(s))
 
-  lazy val config = settings.load[Config]("meth.download-cmd")
+  case class Config(program: String, options: Seq[String], defaultTarget: Path, parallel: Int, downloadLogFile: Path, skipSeen: Boolean)
+
+  lazy val config = loadConfig[Config]("meth.download-cmd").get
   lazy val defaultFormat = Format("%[subject|%[subject]-%]%[title]-%[date]")
 
   case class Params(
@@ -28,7 +36,9 @@ object download {
     pattern: Option[String] = None,
     tvdbSeriesId: Option[String] = None,
     tvdbFirstAired: Boolean = false,
-    query: Seq[String] = Seq.empty) {
+    query: Seq[String] = Seq.empty,
+    downloadLog: Path = config.downloadLogFile,
+    skipSeen: Boolean = config.skipSeen) {
 
     lazy val tvdbEnabled = tvdbSeriesId.isDefined && tvdbFirstAired
   }
@@ -77,6 +87,18 @@ object download {
           "Currently this is the only supported search operation.").
           wrapLines(60).indentLines2(27))
 
+      opt[Path]("download-log").
+        action((p, cfg) => cfg.copy(downloadLog = p.toAbsolutePath)).
+        valueName("<file>").
+        text("Use a different download log file than the default (specified in config file).".
+          wrapLines(60).indentLines2(27))
+
+      opt[Boolean]("skip-seen").
+        action((f, cfg) => cfg.copy(skipSeen = f)).
+        valueName("true|false").
+        text("Whether to skip already downloaded urls according to the download log file. Default is true.".
+          wrapLines(60).indentLines2(27))
+
       arg[String]("<query>").
         unbounded().
         action((x, cfg) => cfg.copy(query = cfg.query :+ x)).
@@ -99,23 +121,44 @@ object download {
     .replaceAll("[^a-zA-Z\\-_0-9\\./]", "")
     .replaceAll("^-", "")
 
+  def urlAlreadySeen(log: Path, url: String): Boolean =
+    if (!Files.exists(log)) false
+    else scala.io.Source.fromFile(log.toFile).getLines.toSet.contains(url)
+
+  def addLog(log: Path, url: String): Unit = {
+    if (!urlAlreadySeen(log, url)) {
+      try {
+        val bw = Files.newBufferedWriter(log, StandardCharsets.UTF_8, APPEND, CREATE)
+        bw.write(url + "\n")
+        bw.close
+      } catch {
+        case e: Exception =>
+          Console.err.println(s"Could not append to download log: ${e.getMessage}")
+      }
+    }
+  }
 
   /** Download a show using curl into `target' directory. */
-  def downloadExtern(outFile: TvShow => Path)(show: TvShow): Task[Unit] = Task.delay {
+  def downloadExtern(downloadLog: Path, skipSeen: Boolean, outFile: TvShow => Path)(show: TvShow): Task[Unit] = Task.delay {
     val out = outFile(show)
     if (Files.exists(out)) println(s"$out already exists")
     else show.bestUrl match {
       case Some(url) =>
-        Files.createDirectories(out.getParent)
-        println(s"Download '${show.title}' to $out …")
-        val cmd = Seq(config.program) ++ config.options.map {
-          case "%[url]" => url
-          case "%[outfile]" => out.toString
-          case "%[outdir]" => out.getParent.toString
-          case s => s
-        }
+        if (skipSeen && urlAlreadySeen(downloadLog, url)) {
+          println(s"${show.title} ($url) already downloaded according to log.")
+        } else {
+          Files.createDirectories(out.getParent)
+          println(s"Download '${show.title}' to $out …")
+          val cmd = Seq(config.program) ++ config.options.map {
+            case "%[url]" => url
+            case "%[outfile]" => out.toString
+            case "%[outdir]" => out.getParent.toString
+            case s => s
+          }
 
-        Process(cmd, Some(out.getParent.toFile)).!!
+          Process(cmd, Some(out.getParent.toFile)).!!
+          addLog(downloadLog, url)
+        }
       case None =>
         println(s"No url available for '${show.title}'")
     }
@@ -131,6 +174,8 @@ object download {
   }
 
   val cmd: Cmd = Cmd(Params()) { cfg =>
+    Files.createDirectories(cfg.downloadLog.getParent)
+
     val parallel = cfg.parallel.getOrElse(config.parallel)
     val shows = movielist.get.
       filter(Filter.query(cfg.query).as[Predicate]).
@@ -144,7 +189,7 @@ object download {
       cfg.target.toAbsolutePath.resolve(fileName)
     }
 
-    val sink: Sink[Task, TvShow] = _.evalMap(downloadExtern(outFile))
+    val sink: Sink[Task, TvShow] = _.evalMap(downloadExtern(cfg.downloadLog, cfg.skipSeen, outFile))
 
     if (parallel <= 1) {
       (shows to sink).run

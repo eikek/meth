@@ -4,16 +4,19 @@ import java.nio.file.Paths
 import scala.sys.process._
 import fs2.Task
 import scopt.OptionParser
+import pureconfig._
+import pureconfig.generic.auto._
 
 import meth.data._
 import meth.filter._
+import meth.settings._
 import meth.main.Cmd
 
 object play {
 
   case class Config(program: String, options: Seq[String])
 
-  lazy val config = settings.load[Config]("meth.play-cmd")
+  lazy val config = loadConfig[Config]("meth.play-cmd").get
 
   case class Params(
     first: Option[Long] = None,

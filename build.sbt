@@ -1,7 +1,7 @@
 import meth.sbt.libs._
 
 name := "meth"
-version := "0.0.1-SNAPSHOT"
+version := "0.0.2-SNAPSHOT"
 scalaVersion := `scala-version`
 
 scalacOptions ++= Seq(
@@ -32,4 +32,4 @@ assemblyOption in assembly := (assemblyOption in assembly).value.copy(
   )
 )
 
-assemblyJarName in assembly := s"${name.value}-${version.value}-${scalaVersion.value}"
+assemblyJarName in assembly := s"${name.value}-${version.value}"

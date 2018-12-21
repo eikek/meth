@@ -4,12 +4,15 @@ import java.nio.file.{Files, Path, Paths}
 import java.time.Duration
 import javax.xml.stream._
 import java.io.StringReader
-import com.typesafe.config.ConfigValue
 import scala.util.Try
 
 import fs2.Task
 import scalaj.http._
-import pureconfig._, pureconfig.error._
+import pureconfig._
+import pureconfig.error._
+import pureconfig.ConvertHelpers._
+import pureconfig.generic.auto._
+import pureconfig.generic.ProductHint
 
 object settings {
   private def setConfigFile(): Unit = {
@@ -20,29 +23,29 @@ object settings {
   }
   setConfigFile()
 
-  lazy val main: Settings = load[Settings]("meth")
+  lazy val main: Settings = loadConfig[Settings]("meth").get
 
-  def load[A](name: String)(implicit conv: ConfigConvert[A]): A =
-    loadConfig[A](name) match {
+  implicit class EitherOps[A](e: Either[ConfigReaderFailures, A]) {
+    def get: A = e match {
       case Right(c) => c
       case Left(err) =>
         err.toList.foreach(e => println(e))
         sys.error("Reading configuraion failed.")
     }
-
+  }
 
   implicit def hint[T] = ProductHint[T](ConfigFieldMapping(CamelCase, KebabCase))
 
-  implicit def durationConvert: ConfigConvert[Duration] = {
-    val dc = implicitly[ConfigConvert[scala.concurrent.duration.Duration]]
-    new ConfigConvert[Duration] {
-      def from(v: ConfigValue): Either[ConfigReaderFailures, Duration] =
-        dc.from(v).map(fd => Duration.ofNanos(fd.toNanos))
+  implicit val pathConvert: ConfigReader[Path] = ConfigReader.fromString[Path](catchReadError(s =>
+    if (s.isEmpty) Paths.get(".").toAbsolutePath
+    else Paths.get(s)
+  ))
 
-      def to(d: Duration): ConfigValue =
-        dc.to(scala.concurrent.duration.Duration.fromNanos(d.toNanos))
-    }
+  implicit val durationConvert: ConfigReader[Duration] = {
+    val dc = implicitly[ConfigReader[scala.concurrent.duration.Duration]]
+    dc.map(sd => Duration.ofNanos(sd.toNanos))
   }
+
 
   case class Settings(directory: Path, currentListXml: String, fallbackListUrl: String, autoDownload: Boolean) {
     if (!Files.exists(directory)) {

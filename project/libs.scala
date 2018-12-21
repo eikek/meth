@@ -20,7 +20,7 @@ object libs {
 
   // https://github.com/pureconfig/pureconfig
   // MPL 2.0
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.7.2"
+  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.10.1"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php

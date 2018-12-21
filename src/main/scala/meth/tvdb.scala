@@ -4,9 +4,11 @@ import java.time.{Duration, Instant}
 import java.nio.file.{Files}
 import scalaj.http._
 import fs2.Task
+import pureconfig._, pureconfig.generic.auto._
+
+import meth.settings._
 
 object tvdb {
-  import settings._
 
   case class TvDbConfig(
     apiKey: String,
@@ -16,7 +18,7 @@ object tvdb {
     tokenLifetime: Duration,
     acceptLanguage: String)
 
-  val config = settings.load[TvDbConfig]("meth.thetvdb")
+  val config = loadConfig[TvDbConfig]("meth.thetvdb").get
 
   def newToken: Task[String] =  {
     val f = settings.main.directory.resolve("thetvdb.token")
