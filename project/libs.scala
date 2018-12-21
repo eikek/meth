@@ -4,23 +4,23 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.12.2"
+  val `scala-version` = "2.12.8"
 
   // https://github.com/lihaoyi/fastparse
   // MIT
-  val fastparse = "com.lihaoyi" %% "fastparse" % "0.4.3"
+  val fastparse = "com.lihaoyi" %% "fastparse" % "0.4.4"
 
   // https://github.com/FasterXML/jackson-core
   // ASL 2.0
-  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8"
+  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8"
 
   // http://tukaani.org/xz/java.html
   // Public Domain
-  val xz ="org.tukaani" % "xz" % "1.6"
+  val xz ="org.tukaani" % "xz" % "1.8"
 
   // https://github.com/pureconfig/pureconfig
   // MPL 2.0
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.7.1"
+  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.7.2"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -33,7 +33,7 @@ object libs {
 
   // https://github.com/scalatest/scalatest
   // ASL 2.0
-  val scalatest = "org.scalatest" %% "scalatest" % "3.0.3"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
 
   // https://github.com/lihaoyi/Ammonite
   // MIT
@@ -67,7 +67,7 @@ object libs {
 
   // https://github.com/scopt/scopt
   // MIT
-  val scopt = "com.github.scopt" %% "scopt" % "3.5.0"
+  val scopt = "com.github.scopt" %% "scopt" % "3.7.1"
 
   // https://github.com/typesafehub/scala-logging
   // ASL 2.0
@@ -79,5 +79,5 @@ object libs {
 
   // https://github.com/scalaj/scalaj-http
   // ASL 2.0
-  val `scalaj-http` = "org.scalaj" %% "scalaj-http" % "2.3.0"
+  val `scalaj-http` = "org.scalaj" %% "scalaj-http" % "2.4.1"
 }
