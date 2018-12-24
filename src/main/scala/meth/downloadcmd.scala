@@ -29,16 +29,17 @@ object download {
   lazy val defaultFormat = Format("%[subject|%[subject]-%]%[title]-%[date]")
 
   case class Params(
-    target: Path = config.defaultTarget,
-    first: Option[Long] = None,
-    skip: Option[Long] = None,
-    parallel: Option[Int] = None,
-    pattern: Option[String] = None,
-    tvdbSeriesId: Option[String] = None,
-    tvdbFirstAired: Boolean = false,
-    query: Seq[String] = Seq.empty,
-    downloadLog: Path = config.downloadLogFile,
-    skipSeen: Boolean = config.skipSeen) {
+    target: Path = config.defaultTarget
+      , first: Option[Long] = None
+      , skip: Option[Long] = None
+      , parallel: Option[Int] = None
+      , pattern: Option[String] = None
+      , tvdbSeriesId: Option[String] = None
+      , tvdbFirstAired: Boolean = false
+      , query: Seq[String] = Seq.empty
+      , normalize: Boolean = true
+      , downloadLog: Path = config.downloadLogFile
+      , skipSeen: Boolean = config.skipSeen) {
 
     lazy val tvdbEnabled = tvdbSeriesId.isDefined && tvdbFirstAired
   }
@@ -97,6 +98,12 @@ object download {
         action((f, cfg) => cfg.copy(skipSeen = f)).
         valueName("true|false").
         text("Whether to skip already downloaded urls according to the download log file. Default is true.".
+          wrapLines(60).indentLines2(27))
+
+      opt[Boolean]("normalize").
+        action((f, cfg) => cfg.copy(normalize = f)).
+        valueName("true|false").
+        text("Whether to normalize the target filename to contain ascii characters only. Default is true.".
           wrapLines(60).indentLines2(27))
 
       arg[String]("<query>").
@@ -185,7 +192,7 @@ object download {
     val format = cfg.pattern.map(Format.apply).getOrElse(defaultFormat)
     val outFile: TvShow => Path = { show =>
       val ctx = TvShow.defaultContext(show) ++ tvdbContext(cfg, show)
-      val fileName = normalize(format.format(ctx)) +".mp4"
+      val fileName = (if (cfg.normalize) normalize(format.format(ctx)) else format.format(ctx)) +".mp4"
       cfg.target.toAbsolutePath.resolve(fileName)
     }
 
