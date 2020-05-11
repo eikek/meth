@@ -4,7 +4,7 @@ import sbt._
 
 object libs {
 
-  val `scala-version` = "2.12.8"
+  val `scala-version` = "2.12.11"
 
   // https://github.com/lihaoyi/fastparse
   // MIT
@@ -12,7 +12,7 @@ object libs {
 
   // https://github.com/FasterXML/jackson-core
   // ASL 2.0
-  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.9.8"
+  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.11.0"
 
   // http://tukaani.org/xz/java.html
   // Public Domain
@@ -20,7 +20,7 @@ object libs {
 
   // https://github.com/pureconfig/pureconfig
   // MPL 2.0
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.10.1"
+  val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.10.2"
 
   // https://github.com/typelevel/cats
   // MIT http://opensource.org/licenses/mit-license.php
@@ -28,8 +28,8 @@ object libs {
 
   // https://github.com/functional-streams-for-scala/fs2
   // MIT
-  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.9.6"
-  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.9.6"
+  val `fs2-core` = "co.fs2" %% "fs2-core" % "0.9.7"
+  val `fs2-io` = "co.fs2" %% "fs2-io" % "0.9.7"
 
   // https://github.com/scalatest/scalatest
   // ASL 2.0
@@ -79,5 +79,5 @@ object libs {
 
   // https://github.com/scalaj/scalaj-http
   // ASL 2.0
-  val `scalaj-http` = "org.scalaj" %% "scalaj-http" % "2.4.1"
+  val `scalaj-http` = "org.scalaj" %% "scalaj-http" % "2.4.2"
 }
