@@ -33,6 +33,7 @@ object tvdb {
     }
     val fetchNew = Task.delay {
       val res = Http(s"${config.baseUrl}/login")
+        .option(HttpOptions.followRedirects(true))
         .postData(s"""{"apikey": "${config.apiKey}", "username": "${config.username}", "userkey": "${config.userKey}"}""")
         .header("content-type", "application/json")
         .asString
@@ -49,6 +50,7 @@ object tvdb {
   def queryEpisodes(token: String, seriesId: String, params: (String, String)*): Task[Map[String, String]] = Task.delay {
     val url = s"${config.baseUrl}/series/$seriesId/episodes/query"
     val req = Http(url)
+      .option(HttpOptions.followRedirects(true))
       .header("Accept-Language", config.acceptLanguage)
       .header("Authorization", s"Bearer ${token}")
     val json = params.foldLeft(req)({ case (r, (k, v)) => r.param(k, v) })

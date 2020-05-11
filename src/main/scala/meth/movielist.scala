@@ -78,7 +78,8 @@ object movielist {
       }
     }
 
-    Files.exists(target) && isCurrent(Http(listUrl).method("HEAD").asString)
+    Files.exists(target) && isCurrent(Http(listUrl).
+      option(HttpOptions.followRedirects(true)).method("HEAD").asString)
   }
 
   def getHeader: Task[Header1] =
@@ -91,7 +92,7 @@ object movielist {
   def downloadList(target: Path): Task[Path] = Task.delay {
     print("Downloading movie list… ")
     Files.deleteIfExists(target)
-    Http(listUrl).execute(in => {
+    Http(listUrl).option(HttpOptions.followRedirects(true)).execute(in => {
       Files.copy(in, target)
     })
     println("ok")

@@ -59,7 +59,8 @@ object settings {
     /** Choose a url for downloading the `filmlist` file. */
     val listUrl: Task[String] = Task.delay {
       val reader = XMLInputFactory.newInstance.createXMLStreamReader(
-        new StringReader(Http(currentListXml).method("GET").asString.body))
+        new StringReader(Http(currentListXml).method("GET").
+          option(HttpOptions.followRedirects(true)).asString.body))
       var result: List[(Int, String)] = Nil
       var stack: List[String] = Nil
       while (reader.hasNext) {
@@ -80,7 +81,10 @@ object settings {
 
       (stack.map((0, _)) ++ result).
         map(_._2).
-        find(url => Try(Http(url).method("HEAD").asString.isSuccess).toOption.getOrElse(false)).
+        find(url => Try(Http(url).
+          option(HttpOptions.followRedirects(true)).
+          method("HEAD").
+          asString.isSuccess).toOption.getOrElse(false)).
         getOrElse(fallbackListUrl)
     }
   }
