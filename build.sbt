@@ -1,7 +1,7 @@
 import meth.sbt.libs._
 
 name := "meth"
-version := "0.0.4"
+version := "0.0.5-SNAPSHOT"
 scalaVersion := `scala-version`
 
 scalacOptions ++= Seq(
