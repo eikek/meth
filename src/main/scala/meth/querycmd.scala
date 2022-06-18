@@ -7,7 +7,6 @@ import meth.main.Cmd
 import meth.filter._
 import meth.data._
 import meth.show.syntax._
-import meth.string.syntax._
 
 object query {
 

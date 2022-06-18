@@ -9,7 +9,6 @@ import fs2.{Pipe, Stream, Task}
 import scalaj.http._
 
 import meth.data._
-import meth.string.syntax._
 
 object movielist {
   private val lastmodFormat = DateTimeFormatter.RFC_1123_DATE_TIME
@@ -21,9 +20,6 @@ object movielist {
       if (cfg.autoDownload || !Files.exists(cfg.movieFile)) Stream.eval(getCurrentFile).drain
       else Stream.empty
 
-    val post =
-      if (cfg.autoDownload) Stream.empty
-      else Stream.eval(checkCurrentFile).drain
 
     /** Copy the station from previous show, if current one is empty */
     def moveStation: Pipe[Task, TvShow, TvShow] = {
@@ -36,7 +32,7 @@ object movielist {
     prepare ++ jackson.parseFilmlist(cfg.movieFile).
       drop(2). // skip headers
       map(x => new TvShow(x)).
-      through(moveStation) ++ post
+      through(moveStation)
   }
 
   def getCurrentFile: Task[Path] =
@@ -51,20 +47,6 @@ object movielist {
     } yield file
 
 
-  def checkCurrentFile: Task[Unit] =
-    isListCurrent(cfg.movieFileXz).flatMap {
-      case true if Files.exists(cfg.movieFile) => Task.now(())
-      case true => unpackFile(cfg.movieFileXz, cfg.movieFile).map(_ => ())
-      case false if Files.exists(cfg.movieFile) => Task.delay {
-        print("\nInfo: ".cyan)
-        println("There is a newer filmlist version available.")
-        println("Use `update' command to get the new file or set `meth.auto-download' to true.")
-      }
-      case false => Task.delay {
-        print("\nWarn: ".red)
-        println("There is no filmlist file. Will download now.")
-      }
-    }
 
   def isListCurrent(target: Path): Task[Boolean] = Task.delay {
     def isCurrent(resp: HttpResponse[_]): Boolean = {
@@ -110,7 +92,7 @@ object movielist {
 
   def getUnrecognizedEntries: Stream[Task, Seq[String]] =
     jackson.parseFilmlist(settings.main.movieFile).
-      drop(2). // skip headers
+      drop(1). // skip headers
       filter(_.size != 20)
 
 }

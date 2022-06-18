@@ -12,7 +12,7 @@ object libs {
 
   // https://github.com/FasterXML/jackson-core
   // ASL 2.0
-  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.11.0"
+  val `jackson-core` = "com.fasterxml.jackson.core" % "jackson-core" % "2.13.2"
 
   // http://tukaani.org/xz/java.html
   // Public Domain

@@ -17,19 +17,19 @@ scalacOptions ++= Seq(
   "-Ywarn-numeric-widen",
   "-Ywarn-unused-import"
 )
-scalacOptions in (Compile, console) ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains))
+Compile / console / scalacOptions ~= (_ filterNot (Set("-Xfatal-warnings", "-Ywarn-unused-import").contains))
 
 libraryDependencies ++= Seq(
   `scalaj-http`, xz, `fs2-core`, `scalaj-http`, scopt, pureconfig,
   `jackson-core`, fastparse, scalatest
 )
 
-resources in Compile += baseDirectory.value/"README.md"
+Compile / resources += baseDirectory.value/"README.md"
 
-assemblyOption in assembly := (assemblyOption in assembly).value.copy(
+assembly / assemblyOption := (assembly / assemblyOption).value.copy(
   prependShellScript = Some(
     Seq("#!/usr/bin/env sh", """exec java -jar -XX:+UseG1GC $METH_JAVA_OPTS "$0" "$@"""")
   )
 )
 
-assemblyJarName in assembly := s"${name.value}-${version.value}"
+assembly / assemblyJarName := s"${name.value}-${version.value}"
